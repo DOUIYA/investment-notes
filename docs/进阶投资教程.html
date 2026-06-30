@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>进阶投资攻略 — 期权 · 技术分析 · 量化思维</title>
+<style>
+  :root {
+    --primary: #6C3CE9;
+    --primary-light: #EDE7FA;
+    --accent: #FF6B35;
+    --bg: #F8F9FA;
+    --card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-secondary: #555;
+    --border: #E0E0E0;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --gold: #F39C12;
+    --dark: #2D2D3F;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .hero {
+    background: linear-gradient(135deg, #1a0533 0%, #6C3CE9 50%, #9B59B6 100%);
+    color: #fff;
+    text-align: center;
+    padding: 60px 20px 50px;
+  }
+  .hero h1 { font-size: 2.2em; margin-bottom: 10px; }
+  .hero p { font-size: 1.1em; opacity: .85; max-width: 680px; margin: 0 auto; }
+  .hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    padding: 4px 16px;
+    font-size: .85em;
+    margin-top: 14px;
+  }
+  .container { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  .toc {
+    background: var(--card);
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    margin: -30px auto 30px;
+    max-width: 840px;
+    padding: 24px 32px;
+    position: relative;
+    z-index: 2;
+  }
+  .toc h2 { font-size: 1.1em; color: var(--primary); margin-bottom: 12px; }
+  .toc ol { columns: 2; column-gap: 40px; padding-left: 20px; }
+  .toc li { margin-bottom: 6px; break-inside: avoid; }
+  .toc a { color: var(--text); text-decoration: none; font-size: .95em; }
+  .toc a:hover { color: var(--primary); text-decoration: underline; }
+
+  section { margin-bottom: 48px; }
+  .section-title {
+    font-size: 1.6em;
+    color: var(--primary);
+    border-left: 5px solid var(--primary);
+    padding-left: 16px;
+    margin-bottom: 24px;
+  }
+  .section-subtitle {
+    font-size: 1.2em;
+    color: #1a0533;
+    margin: 28px 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .card {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    border: 1px solid var(--border);
+  }
+  .card h4 { color: var(--primary); margin-bottom: 8px; font-size: 1em; }
+  .card p { font-size: .9em; color: var(--text-secondary); }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .93em; }
+  th {
+    background: linear-gradient(135deg, var(--primary), #9B59B6);
+    color: #fff;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 600;
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:nth-child(even) td { background: #faf7ff; }
+
+  .tip, .warn, .info, .formula {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: .92em;
+  }
+  .tip { background: #E8F8F5; border-left: 4px solid var(--green); }
+  .warn { background: #FDF2E9; border-left: 4px solid var(--gold); }
+  .info { background: var(--primary-light); border-left: 4px solid var(--primary); }
+  .formula { background: #F0F4C3; border-left: 4px solid #AFB42B; font-family: 'Courier New', monospace; }
+  .tip strong, .warn strong, .info strong, .formula strong { display: block; margin-bottom: 4px; }
+
+  .step-list { counter-reset: step; margin: 16px 0; }
+  .step-item {
+    counter-increment: step;
+    position: relative;
+    padding: 16px 16px 16px 52px;
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .step-item::before {
+    content: counter(step);
+    position: absolute;
+    left: 16px;
+    top: 16px;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 28px;
+    font-weight: 700;
+  }
+  .step-item h4 { margin-bottom: 4px; color: var(--primary); }
+  .step-item p { font-size: .9em; color: var(--text-secondary); }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .stat {
+    text-align: center;
+    padding: 18px 12px;
+    background: var(--card);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+  .stat .num { font-size: 1.5em; font-weight: 700; color: var(--primary); }
+  .stat .label { font-size: .8em; color: var(--text-secondary); margin-top: 4px; }
+
+  .tag {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--primary);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: .82em;
+    font-weight: 600;
+    margin: 2px;
+  }
+
+  .katex-line { font-family: 'Times New Roman', serif; font-style: italic; color: var(--dark); }
+
+  p { margin: 12px 0; }
+
+  .footer {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: .82em;
+    padding: 30px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 20px;
+  }
+  .footer .disclaimer {
+    background: #FFF3E0;
+    border: 1px solid #FFE0B2;
+    border-radius: 8px;
+    padding: 12px 18px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .chart-placeholder {
+    background: linear-gradient(135deg, #f5f0ff, #ede7fa);
+    border: 2px dashed var(--primary);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    color: var(--primary);
+    font-weight: 600;
+    margin: 20px 0;
+    font-size: .95em;
+  }
+
+  @media (max-width: 640px) {
+    .hero h1 { font-size: 1.5em; }
+    .toc { padding: 16px 20px; }
+    .toc ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>🎓 进阶投资攻略</h1>
+  <p>期权策略 · 技术分析 · 量化思维 · 行为金融 — 从入门到精通的系统化投资进阶</p>
+  <span class="badge">更新于 2026 年 6 月 · 嘉信理财</span>
+</header>
+
+<div class="container">
+
+<div class="toc">
+  <h2>📖 目录</h2>
+  <ol>
+    <li><a href="#p1">第一章 · 期权交易策略</a></li>
+    <li><a href="#p1-1">1.1 期权基础概念</a></li>
+    <li><a href="#p1-2">1.2 四大基础策略</a></li>
+    <li><a href="#p1-3">1.3 进阶组合策略</a></li>
+    <li><a href="#p1-4">1.4 希腊字母（Greeks）</a></li>
+    <li><a href="#p2">第二章 · 技术分析精要</a></li>
+    <li><a href="#p2-1">2.1 趋势与形态</a></li>
+    <li><a href="#p2-2">2.2 核心技术指标</a></li>
+    <li><a href="#p2-3">2.3 K 线形态心理学</a></li>
+    <li><a href="#p3">第三章 · 资金管理与风控</a></li>
+    <li><a href="#p3-1">3.1 凯利公式</a></li>
+    <li><a href="#p3-2">3.2 仓位管理艺术</a></li>
+    <li><a href="#p3-3">3.3 尾部风险管理</a></li>
+    <li><a href="#p4">第四章 · 投资组合构建</a></li>
+    <li><a href="#p4-1">4.1 资产配置策略</a></li>
+    <li><a href="#p4-2">4.2 再平衡方法</a></li>
+    <li><a href="#p4-3">4.3 因子投资入门</a></li>
+    <li><a href="#p5">第五章 · 行为金融陷阱</a></li>
+    <li><a href="#p5-1">5.1 认知偏差</a></li>
+    <li><a href="#p5-2">5.2 交易心理建设</a></li>
+    <li><a href="#p6">第六章 · 量化交易初探</a></li>
+    <li><a href="#p6-1">6.1 策略开发流程</a></li>
+    <li><a href="#p6-2">6.2 回测基础</a></li>
+    <li><a href="#summary">总结与投资哲学</a></li>
+  </ol>
+</div>
+
+<!-- ===== 第一章：期权交易策略 ===== -->
+<section id="p1">
+  <h2 class="section-title">📊 第一章 · 期权交易策略</h2>
+
+  <h3 class="section-subtitle" id="p1-1">1.1 期权基础概念</h3>
+  <p>期权是一种金融衍生品，赋予持有者在特定日期或之前以特定价格买卖标的资产的权利（而非义务）。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>📈 看涨期权 (Call)</h4>
+      <p>你有权在到期日或之前以<strong>行权价</strong>买入标的资产。当你预期股价上涨时买入。</p>
+      <span class="tag">Long Call</span>
+    </div>
+    <div class="card">
+      <h4>📉 看跌期权 (Put)</h4>
+      <p>你有权在到期日或之前以<strong>行权价</strong>卖出标的资产。当你预期股价下跌时买入。</p>
+      <span class="tag">Long Put</span>
+    </div>
+    <div class="card">
+      <h4>💰 期权费 (Premium)</h4>
+      <p>购买期权时支付的价格，由内在价值 + 时间价值组成。这是你的最大损失（对买方而言）。</p>
+    </div>
+    <div class="card">
+      <h4>⏰ 时间衰减 (Theta)</h4>
+      <p>期权每天会损失一部分时间价值，越临近到期衰减越快。这是期权买方的死敌，卖方的朋友。</p>
+    </div>
+  </div>
+
+  <div class="formula">
+    <strong>📐 关键公式</strong>
+    <div>内在价值 (Call) = Max(0, 标的价格 - 行权价)</div>
+    <div>内在价值 (Put) = Max(0, 行权价 - 标的价格)</div>
+    <div>时间价值 = 期权价格 - 内在价值</div>
+  </div>
+
+  <h3 class="section-subtitle" id="p1-2">1.2 四大基础策略</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>策略</th><th>操作</th><th>市场看法</th><th>最大盈利</th><th>最大亏损</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>买入 Call</strong></td><td>支付权利金买 Call</td><td>看涨</td><td>理论上无限</td><td>全部权利金</td></tr>
+        <tr><td><strong>买入 Put</strong></td><td>支付权利金买 Put</td><td>看跌</td><td>行权价 - 标的价格 - 权利金</td><td>全部权利金</td></tr>
+        <tr><td><strong>卖出 Call</strong></td><td>收取权利金卖 Call</td><td>中性/看跌</td><td>全部权利金</td><td>理论上无限 ⚠️</td></tr>
+        <tr><td><strong>卖出 Put</strong></td><td>收取权利金卖 Put</td><td>中性/看涨</td><td>全部权利金</td><td>行权价 - 权利金</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 风险提示</strong>
+    <p>卖出裸期权（Naked Option）风险极大，尤其是 Naked Call：如果股价暴涨，你的亏损理论上是无限的。新手备兑开仓（Covered Call）至少要有对应的正股持仓。</p>
+  </div>
+
+  <h3 class="section-subtitle" id="p1-3">1.3 进阶组合策略</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>🔀 牛市价差 (Bull Call Spread)</h4>
+      <p>买入低价 Call + 卖出高价 Call（同到期日）。降低成本，但封顶收益。适合温和看涨。</p>
+      <span class="tag">温和看涨</span>
+    </div>
+    <div class="card">
+      <h4>🔁 熊市价差 (Bear Put Spread)</h4>
+      <p>买入高价 Put + 卖出低价 Put。成本有限，收益有限。适合温和看跌。</p>
+      <span class="tag">温和看跌</span>
+    </div>
+    <div class="card">
+      <h4>🦅 铁鹰价差 (Iron Condor)</h4>
+      <p>卖出一组价差 + 买入更远价差。四个腿。预期股价横盘，收取权利金。风险有限。</p>
+      <span class="tag">区间震荡</span><span class="tag">高级策略</span>
+    </div>
+    <div class="card">
+      <h4>📅 日历价差 (Calendar Spread)</h4>
+      <p>卖出近期 Call + 买入远期 Call（同行权价），赚取时间衰减差异。</p>
+      <span class="tag">时间价值</span>
+    </div>
+    <div class="card">
+      <h4>🔗 跨式组合 (Straddle)</h4>
+      <p>同时买入同行权价的 Call 和 Put。预期大波动但方向不明。成本 = 两个权利金之和。</p>
+      <span class="tag">波动率交易</span>
+    </div>
+    <div class="card">
+      <h4>📐 带式/条式 (Strip/Strap)</h4>
+      <p>Straddle 的变体：Strip 多一个 Put（偏空），Strap 两个 Call（偏多）。</p>
+      <span class="tag">方向性+波动</span>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p1-4">1.4 希腊字母（Greeks）</h3>
+  <div class="card-grid">
+    <div class="card"><h4>Δ Delta</h4><p>标的价格变动 1 元，期权价格变动多少。Call Δ ∈ (0,1)，Put Δ ∈ (-1,0)。实值越深 |Δ| 越接近 1。</p></div>
+    <div class="card"><h4>Γ Gamma</h4><p>Delta 的变化率。衡量 Delta 的稳定性。平值附近 Gamma 最大，临到期时急剧上升。</p></div>
+    <div class="card"><h4>Θ Theta</h4><p>时间衰减。每天期权价格因时间流逝损失的金额。卖方为正（收时间钱），买方为负。</p></div>
+    <div class="card"><h4>ν Vega</h4><p>隐含波动率上升 1%，期权价格变动多少。波动率交易的核心指标。临到期时 Vega 最小。</p></div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 期权交易提醒</strong>
+    <ol style="margin:6px 0 0 18px;">
+      <li>在 thinkorswim 上操作前，务必在 paperMoney 模拟交易 2-4 周</li>
+      <li>首次申请期权权限从 Level 1（买 Call/Put）开始，不要一上来就做裸卖空</li>
+      <li>理解你策略的"最坏情况"再下单。画好盈亏图。</li>
+      <li>不要持仓到期！提前 1-2 周关闭或展期</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== 第二章：技术分析 -->
+<section id="p2">
+  <h2 class="section-title">📉 第二章 · 技术分析精要</h2>
+
+  <h3 class="section-subtitle" id="p2-1">2.1 趋势与形态</h3>
+  <p>技术分析三大假设：① 市场行为涵盖一切信息 ② 价格沿趋势移动 ③ 历史会重演。</p>
+
+  <div class="card-grid">
+    <div class="card"><h4>📈 上升趋势</h4><p>高点和低点逐步抬高。回调时买入。在上升趋势中，"逢低做多"是最安全的方式。</p></div>
+    <div class="card"><h4>📉 下降趋势</h4><p>高点和低点逐步降低。反弹时做空或观望。下跌趋势不要接飞刀。</p></div>
+    <div class="card"><h4>↔️ 区间震荡</h4><p>价格在支撑和阻力间反复。低吸高抛。突破追随。</p></div>
+  </div>
+
+  <div class="chart-placeholder">
+    📊 经典价格形态（建议在 thinkorswim 图表功能中查看）
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>形态</th><th>类型</th><th>含义</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>头肩顶</strong></td><td>反转（顶部）</td><td>上升趋势终结信号。跌破颈线确认目标价。</td></tr>
+        <tr><td><strong>头肩底</strong></td><td>反转（底部）</td><td>下降趋势终结信号。突破颈线确认。</td></tr>
+        <tr><td><strong>双顶 M</strong></td><td>反转</td><td>两次上攻失败，看跌。量能递减更佳。</td></tr>
+        <tr><td><strong>双底 W</strong></td><td>反转</td><td>两次探底成功，看涨。</td></tr>
+        <tr><td><strong>上升三角形</strong></td><td>持续</td><td>水平阻力 + 上升支撑，通常向上突破。</td></tr>
+        <tr><td><strong>下降三角形</strong></td><td>持续</td><td>水平支撑 + 下降阻力，通常向下突破。</td></tr>
+        <tr><td><strong>旗形/三角旗</strong></td><td>持续</td><td>趋势中继形态，突破后量度移动。</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="section-subtitle" id="p2-2">2.2 核心技术指标</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>📊 移动平均线 (MA)</h4>
+      <p><strong>SMA：</strong> 简单移动平均 / <strong>EMA：</strong> 指数移动平均（更看重近期）</p>
+      <p>常用组合：MA20 / MA50 / MA200</p>
+      <p><span class="tag">金叉：短线上穿长线 → 买入信号</span></p>
+    </div>
+    <div class="card">
+      <h4>📏 MACD</h4>
+      <p>指数平滑异同平均线。DIF - DEA = MACD 柱</p>
+      <p>信号：① 金叉/死叉 ② 背离 ③ 零轴穿越</p>
+    </div>
+    <div class="card">
+      <h4>⚡ RSI (相对强弱)</h4>
+      <p>0-100 区间。>70 超买，<30 超卖</p>
+      <p>背离信号：价格新高 + RSI 新低 → 看跌背离</p>
+    </div>
+    <div class="card">
+      <h4>📐 布林带 (Bollinger)</h4>
+      <p>中轨=MA20，上下轨=MA20 ± 2σ</p>
+      <p>触及上轨→可能超买，触及下轨→可能超卖</p>
+      <p>带宽收窄 → 大波动即将来临</p>
+    </div>
+    <div class="card">
+      <h4>📊 成交量 (Volume)</h4>
+      <p>量在价先。突破放量 = 有效突破</p>
+      <p>无量上涨 = 可能诱多</p>
+    </div>
+    <div class="card">
+      <h4>📈 VWAP</h4>
+      <p>成交量加权平均价。机构交易基准</p>
+      <p>价格 > VWAP = 多头优势。日内交易核心指标。</p>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p2-3">2.3 K 线形态心理学</h3>
+  <p>K 线不仅仅是价格记录，它记录了当天多空双方博弈的过程。理解形态背后的市场心理比死记硬背更重要。</p>
+  <div class="card-grid">
+    <div class="card"><h4>🔨 锤子线</h4><p>下影线长，实体小。抛压被大量接盘歼灭，可能见底。需次日阳线确认。</p></div>
+    <div class="card"><h4>⭐ 十字星</h4><p>开盘=收盘。多空犹豫不决。顶部十字星是变盘信号，"射击之星"看跌。</p></div>
+    <div class="card"><h4>📦 吞没形态</h4><p>大实体完全覆盖前一根。看跌吞没 → 顶部反转，看涨吞没 → 底部反转。</p></div>
+    <div class="card"><h4>👥 三白兵/三乌鸦</h4><p>连续三根同色实体。三白兵看涨，三乌鸦看跌。反映市场情绪一边倒。</p></div>
+  </div>
+
+  <div class="info">
+    <strong>💡 技术分析的正确使用方式</strong>
+    <p>不要孤立使用单一指标！至少需要 2-3 个指标共振确认。例如：价格突破 MA20 + 放量 + RSI 从超卖回升 → 三重确认的做多信号。</p>
+  </div>
+</section>
+
+<!-- ===== 第三章：资金管理与风控 -->
+<section id="p3">
+  <h2 class="section-title">🛡️ 第三章 · 资金管理与风控</h2>
+
+  <h3 class="section-subtitle" id="p3-1">3.1 凯利公式 (Kelly Criterion)</h3>
+  <p>凯利公式告诉你：在一笔有优势的赌局中，应该下注多少比例才能使长期收益最大化。</p>
+
+  <div class="formula">
+    <strong>📐 凯利公式</strong>
+    <div class="katex-line">f* = (bp - q) / b</div>
+    <div>其中：</div>
+    <div>　f* = 最佳下注比例</div>
+    <div>　b  = 赔率（盈利/本金）</div>
+    <div>　p  = 胜率</div>
+    <div>　q  = 1-p（败率）</div>
+    <br>
+    <div>例：胜率 60%，盈亏比 2:1</div>
+    <div>　f* = (2×0.6 - 0.4) / 2 = 0.4 → 投入 40%</div>
+  </div>
+
+  <div class="tip">
+    <strong>💡 实际操作建议</strong>
+    <p>使用<strong>"半凯利"（Half Kelly）</strong> 更安全——把凯利公式算出来的数字减半。比如凯利值 40%，实际下注 20%。这样即使胜率估计偏差，也有缓冲空间。</p>
+  </div>
+
+  <h3 class="section-subtitle" id="p3-2">3.2 仓位管理艺术</h3>
+  <div class="stats">
+    <div class="stat"><div class="num">≤2%</div><div class="label">单笔最大亏损占比</div></div>
+    <div class="stat"><div class="num">≤10%</div><div class="label">单票最大仓位</div></div>
+    <div class="stat"><div class="num">≤30%</div><div class="label">单行业最大仓位</div></div>
+    <div class="stat"><div class="num">≥6</div><div class="label">最低持仓只数</div></div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🔺 金字塔加仓</h4>
+      <p>盈利时逐步加仓，但每次加仓金额递减。比如首次 5%，第二次 3%，第三次 1%。这样可以拉高均价但不至于过度集中。</p>
+    </div>
+    <div class="card">
+      <h4>🔻 倒金字塔减仓</h4>
+      <p>高位先卖大份额，跌了卖少一点。大涨时锁定大部分利润，留一点博更多。</p>
+    </div>
+    <div class="card">
+      <h4>🎯 固定比例法</h4>
+      <p>每次交易固定投入总资金的一定比例（如 5-10%）。简单机械，适合严格执行。</p>
+    </div>
+    <div class="card">
+      <h4>⚖️ 风险平价</h4>
+      <p>根据每只股票/资产的历史波动率调整仓位，让每笔交易的风险贡献相等。</p>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p3-3">3.3 尾部风险管理</h3>
+  <p>尾部风险是指那些极不可能发生但一旦发生影响巨大的事件（如 2008 年金融危机、2020 年疫情暴跌）。</p>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🛡️ 保护性看跌 (Protective Put)</h4>
+      <p>持有正股的同时买入 Put，相当于为股票买保险。成本 = 权利金。</p>
+      <span class="tag">保险策略</span>
+    </div>
+    <div class="card">
+      <h4>📊 VIX 恐慌指数</h4>
+      <p>VIX > 30 表示市场极度恐慌但可能接近底部。VIX > 40 极端恐慌。可以在 VIX 高位时卖出 Put 收权利金。</p>
+      <span class="tag">情绪指标</span>
+    </div>
+    <div class="card">
+      <h4>💵 现金储备</h4>
+      <p>永远保留 10-30% 的现金储备。暴跌时你才有弹药。满仓是投资者最大的敌人。</p>
+      <span class="tag">流动性优先</span>
+    </div>
+    <div class="card">
+      <h4>🌐 跨市场分散</h4>
+      <p>美股 + 港股 + 债券 + 黄金。全押美股的深层风险是美国国运衰减。适度配置海外。</p>
+      <span class="tag">地理分散</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 风险管理铁律</strong>
+    <ol style="margin:6px 0 0 18px;">
+      <li><strong>永远不要 All In：</strong> 任何单一头寸都不应该让你夜不能寐</li>
+      <li><strong>止损是纪律：</strong> 预设止损点并严格执行，不允许"再等等"</li>
+      <li><strong>活下来第一：</strong> 巴菲特说："投资第一条规则是不要亏钱，第二条规则是记住第一条。"</li>
+      <li><strong>波动率 ≠ 风险：</strong> 真正的风险是永久性本金损失，而非账面浮亏</li>
+    </ol>
+  </div>
+</section>
+
+<!-- ===== 第四章：投资组合构建 -->
+<section id="p4">
+  <h2 class="section-title">🏗️ 第四章 · 投资组合构建</h2>
+
+  <h3 class="section-subtitle" id="p4-1">4.1 资产配置策略</h3>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🏛️ 60/40 组合</h4>
+      <p>经典配置：60% 股票 + 40% 债券。股债跷跷板效应提供天然对冲。长期年化 8-10%。</p>
+      <span class="tag">经典配置</span>
+    </div>
+    <div class="card">
+      <h4>🌍 全天候组合 (Ray Dalio)</h4>
+      <p>30% 美股 / 40% 长期国债 / 15% 中期国债 / 7.5% 黄金 / 7.5% 大宗商品。在各种经济环境中都能生存。</p>
+      <span class="tag">全天候</span>
+    </div>
+    <div class="card">
+      <h4>📈 永久组合 (Harry Browne)</h4>
+      <p>25% 股票 / 25% 长期债 / 25% 现金 / 25% 黄金。</p>
+      <p>极端稳健，回撤极小，但牛市跑不赢大盘。</p>
+      <span class="tag">极度保守</span>
+    </div>
+    <div class="card">
+      <h4>🚀 核心-卫星策略</h4>
+      <p>70% 核心（宽基 ETF）+ 30% 卫星（行业 ETF / 个股）。安全与弹性的平衡。</p>
+      <span class="tag">推荐</span>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p4-2">4.2 再平衡方法</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>📅 时间再平衡</h4>
+      <p>每季度或每年检查一次，卖出涨多的，买入跌多的，恢复原始比例。</p>
+    </div>
+    <div class="card">
+      <h4>🎯 阈值再平衡</h4>
+      <p>当某类资产偏离目标配置超过阈值（如 ±5%）时才触发再平衡。减少交易次数和费用。</p>
+      <span class="tag">常用</span>
+    </div>
+    <div class="card">
+      <h4>💡 再平衡溢价</h4>
+      <p>再平衡本质是"低买高卖"的强制纪律。历史数据显示，再平衡每年可贡献 0.5-1.5% 的超额收益。</p>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p4-3">4.3 因子投资入门</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>因子</th><th>含义</th><th>对应 ETF 示例</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>价值 (Value)</strong></td><td>低估值股票长期跑赢高估值</td><td>VTV (Vanguard Value ETF)</td></tr>
+        <tr><td><strong>规模 (Size)</strong></td><td>小盘股长期跑赢大盘股</td><td>IWM (Russell 2000 ETF)</td></tr>
+        <tr><td><strong>动量 (Momentum)</strong></td><td>强者恒强，买入赢家</td><td>MTUM (iShares Momentum ETF)</td></tr>
+        <tr><td><strong>质量 (Quality)</strong></td><td>高 ROE、低负债、盈利稳定</td><td>QUAL (Vanguard Quality ETF)</td></tr>
+        <tr><td><strong>低波动 (Low Vol)</strong></td><td>低波动股票风险调整后收益更优</td><td>USMV (iShares Min Vol ETF)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info">
+    <strong>📊 Fama-French 三因子 → 五因子模型</strong>
+    <p>Eugene Fama（诺贝尔奖得主）的研究发现：股票收益可以用市场风险、规模（小盘 vs 大盘）和价值（低估值 vs 高估值）三个因子来解释。后来加入了盈利能力和投资水平，扩展为五因子模型。</p>
+  </div>
+</section>
+
+<!-- ===== 第五章：行为金融 -->
+<section id="p5">
+  <h2 class="section-title">🧠 第五章 · 行为金融陷阱</h2>
+
+  <h3 class="section-subtitle" id="p5-1">5.1 认知偏差</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>🔍 确认偏差 (Confirmation)</h4>
+      <p>只寻找支持自己观点的信息，忽略反面证据。关注好消息，无视坏消息。</p>
+      <span class="tag">最常见</span>
+    </div>
+    <div class="card">
+      <h4>😱 损失厌恶 (Loss Aversion)</h4>
+      <p>亏损 $1000 的痛苦 ≈ 盈利 $2000 的快乐。导致我们死扛亏损仓、过早卖出盈利仓。</p>
+    </div>
+    <div class="card">
+      <h4>🐑 羊群效应 (Herding)</h4>
+      <p>别人买我买，别人卖我卖。FOMO（害怕错过）驱动追高杀跌。</p>
+    </div>
+    <div class="card">
+      <h4>📍 锚定效应 (Anchoring)</h4>
+      <p>被买入价格"套牢"，决策围绕成本价而非基本面变化。卖掉赚钱的、死扛亏钱的。</p>
+    </div>
+    <div class="card">
+      <h4>📈 近因偏差 (Recency)</h4>
+      <p>过度外推最近的趋势。牛市时认为永远涨，熊市时认为永远跌。</p>
+    </div>
+    <div class="card">
+      <h4>🎲 赌徒谬误 (Gambler's)</h4>
+      <p>连续 5 次红色后"应该出黑色"了——每次独立概率 50%，历史不影响未来。</p>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p5-2">5.2 交易心理建设</h3>
+  <div class="card-grid">
+    <div class="card">
+      <h4>📋 交易计划</h4>
+      <p>每次交易前必须写清楚：① 为什么买 ② 目标价 ③ 止损价 ④ 仓位。盘中按计划执行，不允许临时决策。</p>
+    </div>
+    <div class="card">
+      <h4>📓 交易日志</h4>
+      <p>记录每笔交易：入场理由、情绪状态、执行质量、结果复盘。每周回看一次。</p>
+    </div>
+    <div class="card">
+      <h4>🧘 冥想与情绪觉察</h4>
+      <p>每天用 10 分钟观察自己的情绪。发现 FOMO、恐惧、贪婪时暂停交易，等冷静再回来。</p>
+    </div>
+    <div class="card">
+      <h4>📊 概率思维</h4>
+      <p>接受每一笔交易都可能错。你不是在"预测"，你是在有正期望值的概率下注。长期坚持就够了。</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 投资中最难的事</strong>
+    <p>不是分析公司、不是选策略，而是<strong>控制自己</strong>。市场先生的出价只能利用，不能预测。长期成功的投资者都有一个共同点：纪律。</p>
+  </div>
+</section>
+
+<!-- ===== 第六章：量化交易初探 -->
+<section id="p6">
+  <h2 class="section-title">🤖 第六章 · 量化交易初探</h2>
+
+  <h3 class="section-subtitle" id="p6-1">6.1 策略开发流程</h3>
+  <div class="step-list">
+    <div class="step-item">
+      <h4>发现 α 来源</h4>
+      <p>α = 超额收益。可以来自：因子（动量/价值）、技术信号、基本面、另类数据（如情感分析）。</p>
+    </div>
+    <div class="step-item">
+      <h4>构建信号</h4>
+      <p>将想法转化为可计算的数学公式/条件。例如：MA5 上穿 MA20 + RSI < 30 → 买入信号。</p>
+    </div>
+    <div class="step-item">
+      <h4>回测</h4>
+      <p>用历史数据验证信号的有效性。关注：年化收益、最大回撤、夏普比率、胜率。</p>
+    </div>
+    <div class="step-item">
+      <h4>参数优化与稳健性</h4>
+      <p>避免过拟合。策略在不同时段、不同市场、不同参数下都应该有效。样本外测试。</p>
+    </div>
+    <div class="step-item">
+      <h4>执行与监控</h4>
+      <p>模拟交易 → 小资金实盘 → 逐步放量。持续监控策略衰减。</p>
+    </div>
+  </div>
+
+  <h3 class="section-subtitle" id="p6-2">6.2 回测基础</h3>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>指标</th><th>含义</th><th>及格线</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Sharpe Ratio</strong></td><td>每单位风险获得的超额收益</td><td>> 1.0 及格，> 2.0 优秀</td></tr>
+        <tr><td><strong>Max Drawdown</strong></td><td>峰值到谷底的最大跌幅</td><td>< 20% 较稳健</td></tr>
+        <tr><td><strong>Calmar Ratio</strong></td><td>年化收益 / 最大回撤</td><td>> 1.0 可接受</td></tr>
+        <tr><td><strong>胜率</strong></td><td>盈利交易占比</td><td>趋势策略 30-50% 即可</td></tr>
+        <tr><td><strong>盈亏比</strong></td><td>平均盈利 / 平均亏损</td><td>> 1.5 及格</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>🖥️ thinkorswim 策略回测</h4>
+      <p>thinkorswim 内置 ThinkScript 编程语言，可以直接在图表上编写和回测简单策略。</p>
+    </div>
+    <div class="card">
+      <h4>🐍 Python 量化框架</h4>
+      <p>推荐学习路线：Pandas 数据处理 → Backtrader / Zipline 回测 →vnpy 实盘。</p>
+    </div>
+    <div class="card">
+      <h4>📊 QuantConnect</h4>
+      <p>在线量化交易平台，支持 Python / C#。免费社区版可用，回测股票、期权、期货、外汇。</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 量化交易真相</strong>
+    <ul style="margin:6px 0 0 18px;">
+      <li>回测 ≠ 过去有效不代表未来有效。过拟合陷阱无处不在。</li>
+      <li>容量限制：一个 α 被更多人使用后会被套利消失。</li>
+      <li>基础设施：低延迟、优质数据源、滑点控制都是隐性成本。</li>
+      <li>建议先从"量化思维"开始——用数据和规则指导决策，不急于自动化。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===== 总结 ===== -->
+<section id="summary">
+  <h2 class="section-title">🎯 总结与投资哲学</h2>
+
+  <div class="card-grid">
+    <div class="card">
+      <h4>📖 《聪明的投资者》— 格雷厄姆</h4>
+      <p>"投资操作是以深入分析为基础，确保本金安全并获得适当的回报。不满足这些条件的操作就是投机。"</p>
+    </div>
+    <div class="card">
+      <h4>💎 《穷查理宝典》— 查理·芒格</h4>
+      <p>"所有聪明的投资都是价值投资——以低于价值的价格买入。你必须先评估企业的价值，才能评估股票的价值。"</p>
+    </div>
+    <div class="card">
+      <h4>🌊 《周期》— 马克斯</h4>
+      <p>"周期是必然的，历史不会重复细节，但过程会重复相似规律。"</p>
+    </div>
+    <div class="card">
+      <h4>🎯 核心投资哲学</h4>
+      <p>① 长期主义 ② 纪律执行 ③ 风险管理第一 ④ 持续学习 ⑤ 情绪管理</p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <strong>⚠️ 免责声明</strong>
+    <p>本文内容仅供学习参考，不构成任何投资建议。投资有风险，入市需谨慎。过往业绩不代表未来表现。作者不对任何投资决策承担责任。</p>
+  </div>
+</section>
+
+<div class="footer">
+  <div class="disclaimer">
+    <strong>Generated with WorkBuddy AI · 2026 年 6 月</strong><br>
+    Powered by 嘉信理财 | Charles Schwab
+  </div>
+</div>
+
+</div>
+</body>
+</html>
